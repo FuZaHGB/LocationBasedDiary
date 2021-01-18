@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
@@ -81,7 +82,7 @@ public class DiaryLocationServices extends Service {
                 NotificationChannel notificationChannel = new NotificationChannel(
                         channelId,
                         "Location Service",
-                        NotificationManager.IMPORTANCE_HIGH
+                        NotificationManager.IMPORTANCE_LOW
                 );
                 notificationChannel.setDescription("This channel is used by the Location Based Diary service");
                 notificationManager.createNotificationChannel(notificationChannel);
@@ -99,6 +100,7 @@ public class DiaryLocationServices extends Service {
     }
 
     public void terminateLocationUpdates(){
+        Log.d(TAG, "terminateLocationUpdates: Attempting to stop location updates...");
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         stopForeground(true);
         stopSelf();
@@ -113,20 +115,6 @@ public class DiaryLocationServices extends Service {
         }
         return false;
     }
-
-    /*public Boolean verifyDeviceLocationEnabled(Context context){
-        // Checks that the actual Location feature is enabled within the user's device.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // API version >= 28
-            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            return lm.isLocationEnabled();
-        }
-        else {
-            // Older API
-            int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
-                    Settings.Secure.LOCATION_MODE_OFF);
-            return (mode != Settings.Secure.LOCATION_MODE_OFF);
-        }
-    }*/
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

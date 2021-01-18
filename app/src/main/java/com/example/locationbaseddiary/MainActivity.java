@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 askLocationPermission();
-                //startupLocationRequirementsChecks();
             }
         }
         else {
@@ -76,10 +75,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop: Called. Application is probably running in Background...");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         stopLocationServices();
     }
 
-     private Boolean verifyDeviceLocationEnabled(Context context){
+    private Boolean verifyDeviceLocationEnabled(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // API version >= 28
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             return lm.isLocationEnabled();
@@ -91,51 +96,6 @@ public class MainActivity extends AppCompatActivity {
             return (mode != Settings.Secure.LOCATION_MODE_OFF);
         }
     }
-
-    /*private void beginLocationUpdates(){
-        String channelId = "location_notification_channel";
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent resultIntent = new Intent();
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                getApplicationContext(),
-                0,
-                resultIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                getApplicationContext(),
-                channelId
-        );
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setContentTitle("Location Based Diary Service");
-        builder.setDefaults(NotificationCompat.DEFAULT_ALL);
-        builder.setContentText("Running");
-        builder.setContentIntent(pendingIntent);
-        builder.setAutoCancel(false);
-        builder.setPriority(NotificationCompat.PRIORITY_MAX);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            if (notificationManager != null
-                    && notificationManager.getNotificationChannel(channelId) == null) {
-                NotificationChannel notificationChannel = new NotificationChannel(
-                        channelId,
-                        "Location Service",
-                        NotificationManager.IMPORTANCE_HIGH
-                );
-                notificationChannel.setDescription("This channel is used by the Location Based Diary service");
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-        }
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-    }
-
-    private void terminateLocationUpdates(){
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-    }
-
-      */
 
     private void askLocationPermission() {
         // If permission check fails this method is called to request access to required location permissions
@@ -178,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopLocationServices() {
-        if (!isDiaryLocationServiceRunning()){
+        if (isDiaryLocationServiceRunning()){
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("terminate_DiaryLocationServices");
             startService(intent);
