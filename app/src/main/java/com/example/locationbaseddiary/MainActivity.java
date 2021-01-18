@@ -4,9 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +23,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -37,33 +43,10 @@ public class MainActivity extends AppCompatActivity {
     static int FINE_LOCATION_REQUEST_CODE = 988;
     static int COARSE_LOCATION_REQUEST_CODE = 989;
 
-    private double deviceLat = 0.0;
-    private double deviceLong = 0.0;
-
-    FusedLocationProviderClient fusedLocationProviderClient;
-    LocationRequest locationRequest;
-    LocationCallback locationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null){
-                return;
-            }
-            for (Location location: locationResult.getLocations()){
-                Log.d(TAG, "onLocationResult: " + location.toString());
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        locationRequest = LocationRequest.create();
-        locationRequest.setInterval(15000);
-        locationRequest.setFastestInterval(10000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -77,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED){
-                beginLocationUpdates();
+                startLocationServices(); // We're able to begin location tracking!
             }
             else {
                 askLocationPermission();
-                startupLocationRequirementsChecks();
+                //startupLocationRequirementsChecks();
             }
         }
         else {
@@ -93,10 +76,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        terminateLocationUpdates();
+        stopLocationServices();
     }
 
-    private Boolean verifyDeviceLocationEnabled(Context context){
+     private Boolean verifyDeviceLocationEnabled(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // API version >= 28
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             return lm.isLocationEnabled();
@@ -109,13 +92,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void beginLocationUpdates(){
+    /*private void beginLocationUpdates(){
+        String channelId = "location_notification_channel";
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent resultIntent = new Intent();
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                getApplicationContext(),
+                channelId
+        );
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle("Location Based Diary Service");
+        builder.setDefaults(NotificationCompat.DEFAULT_ALL);
+        builder.setContentText("Running");
+        builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(false);
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            if (notificationManager != null
+                    && notificationManager.getNotificationChannel(channelId) == null) {
+                NotificationChannel notificationChannel = new NotificationChannel(
+                        channelId,
+                        "Location Service",
+                        NotificationManager.IMPORTANCE_HIGH
+                );
+                notificationChannel.setDescription("This channel is used by the Location Based Diary service");
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
     private void terminateLocationUpdates(){
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
+
+      */
 
     private void askLocationPermission() {
         // If permission check fails this method is called to request access to required location permissions
@@ -141,12 +161,46 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == FINE_LOCATION_REQUEST_CODE || requestCode == COARSE_LOCATION_REQUEST_CODE){
             if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted
-                //getLastLocation();
-                beginLocationUpdates();
+                startLocationServices();
             } else {
                 requestLocationFeaturesDialog();
             }
         }
+    }
+
+    public void startLocationServices() {
+        if (!isDiaryLocationServiceRunning()){
+            Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
+            intent.setAction("begin_DiaryLocationServices");
+            startService(intent);
+            Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void stopLocationServices() {
+        if (!isDiaryLocationServiceRunning()){
+            Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
+            intent.setAction("terminate_DiaryLocationServices");
+            startService(intent);
+            Toast.makeText(this, "Diary Location Services Stopped", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public Boolean isDiaryLocationServiceRunning() {
+        ActivityManager activityManager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager != null) {
+            for (ActivityManager.RunningServiceInfo service :
+                    activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (DiaryLocationServices.class.getName().equals(service.service.getClassName())) {
+                    if (service.foreground) {
+                       return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
     }
 
     private void requestLocationFeaturesDialog() {
