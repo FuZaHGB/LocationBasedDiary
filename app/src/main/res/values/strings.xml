@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">LocationBasedDiary</string>
+    <string name="start_location_services">Start Location Services</string>
+    <string name="terminate_location_services">Terminate Location Services</string>
+</resources>
