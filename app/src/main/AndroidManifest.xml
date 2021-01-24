@@ -4,10 +4,9 @@
     package="com.example.locationbaseddiary"
     tools:ignore="ExtraText">
 
-    // Enabling 'Fine_Location' permission so that Application can actually retrieve Device's location
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -16,20 +15,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LocationBasedDiary">
-
-        <activity android:name=".MainActivity">
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" />
 
-        <service android:name=".DiaryLocationServices"
+        <service
+            android:name=".DiaryLocationServices"
             android:enabled="true"
-            android:exported="false"/>
-
-
+            android:exported="false" />
     </application>
 
 </manifest>

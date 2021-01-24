@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">LocationBasedDiary</string>
+    <string name="LBDTitle">Location Based Diary</string>
+    <string name="LoginLabel">Login</string>
+    <string name="LoginLabel_email">Email:</string>
+    <string name="LoginLabel_password">Password:</string>
+    <string name="LoginLabel_forgottenPassword">Forgotten Password?</string>
+    <string name="LoginLabel_register">Register</string>
     <string name="start_location_services">Start Location Services</string>
     <string name="terminate_location_services">Terminate Location Services</string>
 </resources>
