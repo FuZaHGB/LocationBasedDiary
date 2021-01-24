@@ -3,6 +3,7 @@ package com.example.locationbaseddiary;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -53,7 +54,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void registerUser() {
-        String email = editTextEmail.getText().toString();
+        String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString();
 
         // Email verification. Making sure field is not null + is correct email address format.
@@ -78,6 +79,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         if(task.isSuccessful()) {
                             //updateFirebaseUser();
                             Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                            finish();
+                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         }
                         else {
                             //Toast.makeText(Register.this, "An error has occurred during registration. Please try again.", Toast.LENGTH_SHORT).show();

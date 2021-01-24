@@ -6,6 +6,8 @@
     <string name="LoginLabel_password">Password:</string>
     <string name="LoginLabel_forgottenPassword">Forgotten Password?</string>
     <string name="LoginLabel_register">Register</string>
+    <string name="LoginLabel_resetPass">Reset Password</string>
+    <string name="LoginLabel_logout">Logout</string>
     <string name="start_location_services">Start Location Services</string>
     <string name="terminate_location_services">Terminate Location Services</string>
 </resources>

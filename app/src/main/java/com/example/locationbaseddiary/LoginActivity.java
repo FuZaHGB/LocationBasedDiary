@@ -23,7 +23,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private static final String TAG = "Register";
 
-    private TextView btn_Register;
+    private TextView btn_Register, btn_ForgotPassword;
     private EditText editTextEmail, editTextPassword;
     private Button btn_Login;
 
@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (user != null) {
             // User is signed in
             // DEBUG Toast.makeText(this, "User is already signed in", Toast.LENGTH_SHORT).show();
+            finish();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
             // User is signed out
@@ -52,6 +53,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         btn_Login = (Button) findViewById(R.id.btn_Login);
         btn_Login.setOnClickListener(this);
+
+        btn_ForgotPassword = (TextView) findViewById(R.id.forgottenPassword_textView);
+        btn_ForgotPassword.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -68,11 +72,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 // User has pressed the 'Login' button
                 loginUser();
                 break;
+
+            case R.id.forgottenPassword_textView:
+                startActivity(new Intent(this, ForgotPasswordActivity.class));
+                break;
         }
     }
 
     private void loginUser() {
-        String email = editTextEmail.getText().toString();
+        String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString();
 
         // Email verification. Making sure field is not null + is correct email address format.

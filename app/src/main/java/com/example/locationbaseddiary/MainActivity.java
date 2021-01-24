@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,17 +38,26 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
     static int FINE_LOCATION_REQUEST_CODE = 988;
     static int COARSE_LOCATION_REQUEST_CODE = 989;
 
+    private Button logout;
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        logout = (Button) findViewById(R.id.btn_Logout);
+        logout.setOnClickListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -181,5 +192,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_Logout:
+                logoutUser();
+                break;
+        }
+    }
+
+    private void logoutUser() {
+        mAuth.signOut();
+        stopLocationServices();
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }
