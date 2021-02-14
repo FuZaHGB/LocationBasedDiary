@@ -20,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
-import com.google.firebase.database.FirebaseDatabase;
+//import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -103,7 +103,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    private void updateFirebaseUser() {
+    /*private void updateFirebaseUser() {
         FirebaseDatabase.getInstance().getReference("Users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .setValue(editTextEmail.getText()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -118,5 +118,5 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         });
-    }
+    } */
 }

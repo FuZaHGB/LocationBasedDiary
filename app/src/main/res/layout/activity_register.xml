@@ -34,7 +34,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LBD_Label_RegisterActivity_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/addTask_Label" />
 
     <TextView
         android:id="@+id/enterPassword_Label_RegisterActivity_textView"
@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@+id/enterEmail_Label_RegisterActivity_textView" />
 
     <TextView
-        android:id="@+id/LBD_Label_RegisterActivity_textView"
+        android:id="@+id/addTask_Label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="60dp"

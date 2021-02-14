@@ -50,8 +50,8 @@ public class DiaryLocationServices extends Service {
 
     private static final String TAG = "DiaryLocationServices";
     static final int LOCATION_SERVICE_ID = 777;
-    static int DEFAULT_LOCATION_UPDATE_INTERVAL = 15000;
-    static int FASTEST_LOCATION_UPDATE_INTERVAL = 10000;
+    static int DEFAULT_LOCATION_UPDATE_INTERVAL = 30000;
+    static int FASTEST_LOCATION_UPDATE_INTERVAL = 25000;
 
     //private static String BASE_URL = "http://188.166.145.15:3000/edinburghpoi?street_name=eq.Hermiston+Gait";
     private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
@@ -59,13 +59,6 @@ public class DiaryLocationServices extends Service {
 
     private double deviceLat = 0.0;
     private double deviceLong = 0.0;
-
-    CRSFactory factory = new CRSFactory();
-    CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:4326");
-    CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:27700");
-
-    BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
-
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -81,12 +74,11 @@ public class DiaryLocationServices extends Service {
                 deviceLong = locationResult.getLastLocation().getLongitude();
 
                 try {
-                    jsonQueryPostgREST();
+                    //jsonQueryPostgREST();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            //convertWGStoBNG(deviceLat, deviceLong);
         }
     };
 
@@ -99,10 +91,9 @@ public class DiaryLocationServices extends Service {
 
         JSONObject json = new JSONObject();
 
-        // Hardcoded for Debug testing.
-        json.put("northing", "671009.583082142");
-        json.put("easting", "321016.697423582");
-        json.put("poiclassname", "Bakeries");
+        json.put("xcoord", deviceLong);
+        json.put("ycoord", deviceLat);
+        json.put("poiclassname", "Diy and Home Improvement");
 
         StringEntity se = new StringEntity(json.toString());
 
@@ -125,7 +116,7 @@ public class DiaryLocationServices extends Service {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e,
-                                  JSONArray response) {
+                                  JSONObject response) {
 
                 // for when the HTTP response is bad (e.g. 400)
                 Log.d(TAG, "Request fail! Status code: " + statusCode);

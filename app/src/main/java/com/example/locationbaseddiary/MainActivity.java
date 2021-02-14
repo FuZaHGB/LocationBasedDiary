@@ -3,9 +3,14 @@ package com.example.locationbaseddiary;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -23,10 +28,18 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,6 +52,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,7 +63,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static int COARSE_LOCATION_REQUEST_CODE = 989;
 
     private Button logout;
+    private Toolbar toolbar;
+    private RecyclerView taskList;
     private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    private FirebaseFirestore fStore;
+    private FirestoreRecyclerAdapter<TaskItem, TaskViewHolder> taskAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +78,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         logout = (Button) findViewById(R.id.btn_Logout);
         logout.setOnClickListener(this);
 
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Location Based Diary");
+
         mAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        Query query = fStore.collection("Tasks").document(user.getUid()).collection("myTasks").orderBy("Description", Query.Direction.DESCENDING);
+        FirestoreRecyclerOptions<TaskItem> allTasks = new FirestoreRecyclerOptions.Builder<TaskItem>().
+                setQuery(query, TaskItem.class)
+                .build();
+
+        taskAdapter = new FirestoreRecyclerAdapter<TaskItem, TaskViewHolder>(allTasks) {
+            @Override
+            protected void onBindViewHolder(@NonNull TaskViewHolder holder, int position, @NonNull TaskItem model) {
+                holder.taskDesc.setText(model.getDescription());
+                Log.d(TAG, "onBindViewHolder: taskDesc = "+model.getDescription());
+                holder.taskClass.setText(model.getTask_Classname());
+                holder.taskDateTime.setText(model.getDateTime_Task_Creation());
+            }
+
+            @NonNull
+            @Override
+            public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_view, parent, false);
+                Log.d(TAG, "onCreateViewHolder: Created a view for a note");
+                return new TaskViewHolder(view);
+            }
+        };
+
+        taskList = findViewById(R.id.taskList);
+        taskList.setLayoutManager(new LinearLayoutManager(this));
+        taskList.setAdapter(taskAdapter);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_add, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.addTask_Btn){
+            Toast.makeText(this, "Add button has been pressed", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, AddTask.class);
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         startupLocationRequirementsChecks();
+        taskAdapter.startListening();
     }
 
     private void startupLocationRequirementsChecks(){
@@ -87,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: Called. Application is probably running in Background...");
+        taskAdapter.stopListening();
     }
 
     @Override
@@ -207,5 +281,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth.signOut();
         stopLocationServices();
         startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    public class TaskViewHolder extends RecyclerView.ViewHolder {
+        TextView taskDesc, taskClass, taskDateTime;
+        View view;
+        CardView mCardView;
+
+        public TaskViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            taskDesc = itemView.findViewById(R.id.textViewTaskDescription);
+            taskClass = itemView.findViewById(R.id.textViewTaskClass);
+            taskDateTime = itemView.findViewById(R.id.textViewTaskDateTime);
+
+            mCardView = itemView.findViewById(R.id.taskCard);
+            view = itemView;
+        }
     }
 }
