@@ -47,20 +47,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addTask_Label" />
 
-    <EditText
-        android:id="@+id/editTextTaskClassname"
-        android:layout_width="363dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="17dp"
-        android:layout_marginLeft="17dp"
-        android:layout_marginEnd="27dp"
-        android:layout_marginRight="27dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TaskClassnameLbl" />
-
     <TextView
         android:id="@+id/taskDescription_Label"
         android:layout_width="wrap_content"
@@ -82,12 +68,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="17dp"
         android:layout_marginLeft="17dp"
-        android:layout_marginTop="51dp"
+        android:layout_marginTop="48dp"
         android:layout_marginEnd="246dp"
         android:layout_marginRight="246dp"
-        android:text="Task Classname"
+        android:text="Task Category"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextTaskDesc" />
 
@@ -104,5 +91,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <AutoCompleteTextView
+        android:id="@+id/classnameTextView"
+        android:layout_width="367sp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:completionHint="@string/chooseTask"
+        app:layout_constraintBottom_toTopOf="@+id/addTaskBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TaskClassnameLbl"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

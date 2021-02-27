@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -31,12 +33,15 @@ import java.util.Map;
 public class AddTask extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "AddTask";
+    private static String[] classnames;
 
     private Toolbar toolbar;
-    private EditText taskDesc, taskClass;
+    private EditText taskDesc;
     private Button addTask;
     private Calendar calendar;
     private String currentDateTime;
+    private AutoCompleteTextView editText;
+    private ArrayAdapter<String> adapter;
 
     private FirebaseUser user;
     private FirebaseFirestore fStore;
@@ -53,7 +58,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
         fStore = FirebaseFirestore.getInstance();
 
         taskDesc = findViewById(R.id.editTextTaskDesc);
-        taskClass = findViewById(R.id.editTextTaskClassname);
+        //taskClass = findViewById(R.id.editTextTaskClassname);
 
         addTask = (Button) findViewById(R.id.addTaskBtn);
         addTask.setOnClickListener(this);
@@ -64,13 +69,18 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
                 calendar.get(Calendar.MINUTE);
 
         Log.d(TAG, "onCreate: "+currentDateTime);
+
+        classnames = getResources().getStringArray(R.array.classnames);
+        editText = findViewById(R.id.classnameTextView);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, classnames);
+        editText.setAdapter(adapter);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.addTaskBtn:
-                AddTask();
+                addTask();
                 break;
         }
     }
@@ -92,9 +102,10 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    private void AddTask(){
+    private void addTask(){
         String taskDescription = taskDesc.getText().toString();
-        String taskClassname = taskClass.getText().toString();
+        //String taskClassname = taskClass.getText().toString();
+        String taskClassname = editText.getText().toString();
 
         if (taskDescription.isEmpty() || taskDescription.length() < 5) {
             taskDesc.setError("Please enter a valid Task Description, with a minimum of 5 characters");
@@ -103,8 +114,8 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
         }
 
         if (taskClassname.isEmpty()) {
-            taskClass.setError("Enter a classname for the task");
-            taskClass.requestFocus();
+            editText.setError("Enter a classname for the task");
+            editText.requestFocus();
             return;
         }
 

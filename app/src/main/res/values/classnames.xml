@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="classnames">
+        <item>Nursery Schools and Pre and After School Care</item>
+        <item>Telecommunications Companies</item>
+        <item>Mobile Discos</item>
+        <item>Members Of Parliament and Members Of European Parliament</item>
+        <item>Discount Stores</item>
+        <item>Internet Services</item>
+        <item>Health Authorities</item>
+        <item>Garages, Garden and Portable Buildings</item>
+        <item>Blood Transfusion Service</item>
+        <item>Catering and Non Specific Food Products</item>
+        <item>Pawnbrokers</item>
+        <item>Riding Schools, Livery Stables and Equestrian Centres</item>
+        <item>Internet Cafes</item>
+        <item>Waste Storage, Processing and Disposal</item>
+        <item>Animal Clipping and Grooming</item>
+        <item>Domestic Appliances</item>
+        <item>Colours, Chemicals and Water Softeners and Supplies</item>
+        <item>Domestic Staff and Home Help</item>
+        <item>Hoppers and Silos</item>
+        <item>Weighbridges</item>
+        <item>Food Consultants</item>
+        <item>Organic, Health, Gourmet and Kosher Foods</item>
+        <item>Florists</item>
+        <item>Children\'s Activity Centres</item>
+        <item>Telecommunications Features</item>
+        <item>Printing and Photocopying Services</item>
+        <item>Butchers</item>
+        <item>Sheep Dips and Washes</item>
+        <item>Musicians, Orchestras and Composers</item>
+        <item>Customer Service Centres</item>
+        <item>Building Contractors</item>
+        <item>Railway Related Services</item>
+        <item>Introduction and Dating Agencies</item>
+        <item>Art Galleries</item>
+        <item>Martial Arts Instruction</item>
+        <item>Roadside Telephone Boxes</item>
+        <item>Jewellery, Gems, Clocks and Watches</item>
+        <item>Cafes, Snack Bars and Tea Rooms</item>
+        <item>Hair and Beauty Services</item>
+        <item>Viaducts</item>
+        <item>Commodity Dealers</item>
+        <item>Solicitors, Advocates and Notaries Public</item>
+        <item>Special Purpose Machinery and Equipment</item>
+        <item>Footwear</item>
+        <item>Disability and Mobility Equipment</item>
+        <item>Business Parks and Industrial Estates</item>
+        <item>Stocks, Shares and Unit Trusts</item>
+        <item>Marine Equipment Including Boats and Ships</item>
+        <item>Historic and Ceremonial Structures</item>
+        <item>Adult Venues</item>
+        <item>Structural Engineers</item>
+        <item>Halls and Community Centres</item>
+        <item>Industrial Coatings and Finishings</item>
+        <item>Cosmetics, Toiletries, Perfumes and Hairdressing Supplies</item>
+        <item>Office Services</item>
+        <item>Playgrounds</item>
+        <item>Counselling and Advice Services</item>
+        <item>Sports and Leisure Equipment Repair</item>
+        <item>Historical Research</item>
+        <item>Cleaning Services</item>
+        <item>Drama Schools</item>
+        <item>Entertainment Services</item>
+        <item>Department Stores</item>
+        <item>Medical Equipment Rental and Leasing</item>
+        <item>Meteorological Features</item>
+        <item>Mailing and Other Information Services</item>
+        <item>Dairy Farming</item>
+        <item>Clothing, Components and Accessories</item>
+        <item>Foot Related Services</item>
+        <item>Household Repairs and Restoration</item>
+        <item>Metalworkers Including Blacksmiths</item>
+        <item>Import and Export Services</item>
+        <item>Recycling Centres</item>
+        <item>Cattle Grids</item>
+        <item>Photographic Services</item>
+        <item>Veterinarians and Animal Hospitals</item>
+        <item>Cutting, Drilling  and Welding Services</item>
+        <item>Language Schools</item>
+        <item>Banqueting and Function Rooms</item>
+        <item>Homeopaths</item>
+        <item>Accident and Emergency Hospitals</item>
+        <item>Clearance and Salvage Dealers</item>
+        <item>Literary Services</item>
+        <item>Trophies and Engraving Services</item>
+        <item>Sports Grounds, Stadia and Pitches</item>
+        <item>Measurement and Inspection Equipment</item>
+        <item>Bus Stops</item>
+        <item>Water Pumping Stations</item>
+        <item>Conservation Organisations</item>
+        <item>Construction and Tool Hire</item>
+        <item>Fast Food Delivery Services</item>
+        <item>Television and Radio Services</item>
+        <item>Electrical Production and Manipulation Equipment</item>
+        <item>Footbridges</item>
+        <item>Combat, Laser and Paintball Games</item>
+        <item>Animal Welfare Organisations</item>
+        <item>Prisons</item>
+        <item>Bridges</item>
+        <item>Diy and Home Improvement</item>
+        <item>Unspecified Quarries Or Mines</item>
+        <item>Clothing Hire</item>
+        <item>Revenue and Customs Offices</item>
+        <item>Comics Bookshops</item>
+        <item>Architectural and Building Related Consultants</item>
+        <item>Office and Shop Equipment</item>
+        <item>Taxi Services</item>
+        <item>Paypoint Locations</item>
+        <item>Fish and Shellfish</item>
+        <item>Press and Journalism Services</item>
+        <item>Printing Related Machinery</item>
+        <item>Embassies and Consulates</item>
+        <item>Garden Centres and Nurseries</item>
+        <item>Registrars Offices</item>
+        <item>Historical Ships</item>
+        <item>Lochs and Lochans</item>
+        <item>Ambulance and Medical Transportation Services</item>
+        <item>Electronic Equipment</item>
+        <item>Adult Services</item>
+        <item>Bookmakers</item>
+        <item>Camping and Caravanning</item>
+        <item>Libraries</item>
+        <item>Casinos</item>
+        <item>Leather Products</item>
+        <item>Desktop Publishing Services</item>
+        <item>Auctioneers, Auction Rooms and Valuers</item>
+        <item>Frozen Foods</item>
+        <item>Currency Conversion and Money Transfers</item>
+        <item>Fencing and Drystone Walling Services</item>
+        <item>Music Teachers and Schools</item>
+        <item>Business Related Consultants</item>
+        <item>Computer Security</item>
+        <item>Historic Buildings Including Castles, Forts and Abbeys</item>
+        <item>Bowling Facilities</item>
+        <item>Bingo Halls</item>
+        <item>Tram, Metro and Light Railway Stations and Stops</item>
+        <item>Bricks, Tiles, Clay and Ceramic Products</item>
+        <item>Ferries and Ferry Terminals</item>
+        <item>Marketing Services</item>
+        <item>Air and Water Filtration</item>
+        <item>Medical Waste Disposal Services</item>
+        <item>Firework Related Services</item>
+        <item>Youth Accommodation</item>
+        <item>Speech Therapists</item>
+        <item>Examination Boards</item>
+        <item>Cosmetics, Toiletries and Perfumes</item>
+        <item>Alcoholic Drinks Including Off Licences and Wholesalers</item>
+        <item>Baby, Nursery and Playground Equipment</item>
+        <item>Wood Products Including Charcoal, Paper, Card and Board</item>
+        <item>Animal Feeds, Pet Foods, Hay and Straw</item>
+        <item>Demolition Services</item>
+        <item>Plate Makers, Print Finishers and Type Setters</item>
+        <item>Tribunals</item>
+        <item>Property Development Services</item>
+        <item>Fast Food and Takeaway Outlets</item>
+        <item>General Purpose Machinery</item>
+        <item>Chimneys</item>
+        <item>Camping, Caravanning, Mobile Homes, Holiday Parks and Centres</item>
+        <item>Music and Video</item>
+        <item>Higher Education Establishments</item>
+        <item>General Manufacturing</item>
+        <item>Wedding Services</item>
+        <item>Dental and Medical Laboratories</item>
+        <item>Driving and Motorcycle Schools</item>
+        <item>Athletics Facilities</item>
+        <item>Recycling, Reclamation and Disposal</item>
+        <item>Glass</item>
+        <item>Civil Engineers</item>
+        <item>Signalling Facilities</item>
+        <item>Cemeteries and Crematoria</item>
+        <item>Concert/Exhibition Organisers and Services</item>
+        <item>Sound, Light and Vision Service and Equipment Hire</item>
+        <item>Property Information Services</item>
+        <item>Cooling and Refrigeration</item>
+        <item>Finger Posts, Guide Posts and Cairns</item>
+        <item>Alcoholic Drinks</item>
+        <item>Hotels, Motels, Country Houses and Inns</item>
+        <item>Farm Based Attractions</item>
+        <item>Ice Rinks</item>
+        <item>Vehicle Cleaning Services</item>
+        <item>Fire Safety Features</item>
+        <item>Vehicle Components</item>
+        <item>Potteries</item>
+        <item>Fundraising Services</item>
+        <item>Nursing and Residential Care Homes</item>
+        <item>Adhesives and Sealants</item>
+        <item>Slimming Clubs and Services</item>
+        <item>Unspecified Works Or Factories</item>
+        <item>Insurers and Support Activities</item>
+        <item>Designated Scenic Features</item>
+        <item>Letter Boxes</item>
+        <item>Lighting Towers</item>
+        <item>Bouncy Castles and Inflatables Hire</item>
+        <item>Textiles, Fabrics, Silk and Machinery</item>
+        <item>Drain and Sewage Clearance</item>
+        <item>Optometrists and Opticians</item>
+        <item>Mail Order and Catalogue Stores</item>
+        <item>Helipads</item>
+        <item>Aircraft Charters</item>
+        <item>Advertising Services</item>
+        <item>Telecommunications Consultants</item>
+        <item>Event Ticket Agents and Box Office</item>
+        <item>Personalisation</item>
+        <item>Surgeons and Cosmetic Surgeries</item>
+        <item>Golf Ranges, Courses, Clubs and Professionals</item>
+        <item>Green and New Age Goods</item>
+        <item>Cash Machines</item>
+        <item>Mortgage and Financial Lenders</item>
+        <item>Tattooing and Piercing Services</item>
+        <item>Independent and Preparatory Schools</item>
+        <item>Road Construction Services</item>
+        <item>Grocers, Farm Shops and Pick Your Own</item>
+        <item>Restaurants</item>
+        <item>Hospitals</item>
+        <item>Vehicle Hire and Rental</item>
+        <item>Painting and Decorating Services</item>
+        <item>Siteseeing, Tours, Viewing and Visitor Centres</item>
+        <item>Commercial Property Letting</item>
+        <item>Dairy Products</item>
+        <item>Industrial Engineers</item>
+        <item>Estate and Property Management</item>
+        <item>Ponds</item>
+        <item>Window Cleaners</item>
+        <item>General Computer Services</item>
+        <item>Signs</item>
+        <item>Beds and Bedding</item>
+        <item>Bed and Breakfast and Backpacker Accommodation</item>
+        <item>Clothing</item>
+        <item>Ballet and Dance Schools</item>
+        <item>Building Repairs</item>
+        <item>Workwear</item>
+        <item>Catering Services</item>
+        <item>Linen Hire and Washroom Services</item>
+        <item>Company Registration and Trademarks</item>
+        <item>Oil and Gas Extraction, Refinery and Product Manufacture</item>
+        <item>Stationery, Stamps, Tags and Labels</item>
+        <item>Airlines and Airline Services</item>
+        <item>Clinics and Health Centres</item>
+        <item>Forestry</item>
+        <item>Institutes and Professional Organisations</item>
+        <item>Shopping Centres and Retail Parks</item>
+        <item>Political Parties and Related Organisations</item>
+        <item>Message and Greeting Services</item>
+        <item>Subways</item>
+        <item>Giftware</item>
+        <item>Cycles and Accessories</item>
+        <item>Tailoring and Clothing Alteration</item>
+        <item>Zoos and Animal Collections</item>
+        <item>General Household Goods</item>
+        <item>Watersports</item>
+        <item>Nursing Agencies</item>
+        <item>Medical Equipment, Supplies and Pharmaceuticals</item>
+        <item>Wifi Hotspots</item>
+        <item>Refuse Disposal Facilities</item>
+        <item>Pesticides</item>
+        <item>Rubber, Silicones and Plastics</item>
+        <item>Tea and Coffee Merchants</item>
+        <item>Pest and Vermin Control</item>
+        <item>Fords and Level Crossings</item>
+        <item>Curtains and Blinds</item>
+        <item>Tanks (Generic)</item>
+        <item>Plumbing and Heating Services</item>
+        <item>Pipelines</item>
+        <item>Leisure Equipment Hirings</item>
+        <item>Fish, Meat and Poultry Products</item>
+        <item>Conveyors</item>
+        <item>Lampshades and Lighting</item>
+        <item>Non Alcoholic Drinks</item>
+        <item>Education Services</item>
+        <item>Funeral and Associated Services</item>
+        <item>Unspecified and Other Attractions</item>
+        <item>Photographic and Optical Equipment</item>
+        <item>Shoe Repairs</item>
+        <item>Access Equipment</item>
+        <item>Lingerie and Hosiery</item>
+        <item>Confectioners</item>
+        <item>Fish and Chip Shops</item>
+        <item>Glaziers</item>
+        <item>Local Government</item>
+        <item>Beauty and Hairdressing Schools</item>
+        <item>Allotments</item>
+        <item>New Vehicles</item>
+        <item>Electrical and Electronic Engineers</item>
+        <item>Energy Production</item>
+        <item>Petrol and Fuel Stations</item>
+        <item>Film and Video Services</item>
+        <item>Training Providers and Centres</item>
+        <item>Carpets, Rugs, Soft Furnishings and Needlecraft</item>
+        <item>Social Service Activities</item>
+        <item>Gymnasiums, Sports Halls and Leisure Centres</item>
+        <item>Driver Agencies</item>
+        <item>Jewellery and Fashion Accessories</item>
+        <item>Traffic Management and Transport Related Consultants</item>
+        <item>Charitable Organisations</item>
+        <item>Travel Agencies</item>
+        <item>Building and Component Suppliers</item>
+        <item>Aeroplanes</item>
+        <item>Interpretation and Translation Consultants</item>
+        <item>First Aid Training</item>
+        <item>Property Sales</item>
+        <item>Moorings and Unloading Facilities</item>
+        <item>Pregnancy Related Services and Help Centres</item>
+        <item>Dieticians and Nutritionists</item>
+        <item>Stone Quarrying and Preparation</item>
+        <item>Marine Engineers and Services</item>
+        <item>Fuel Distributors and Suppliers</item>
+        <item>Lakes and Waters</item>
+        <item>Hobby, Sports and Pastime Products</item>
+        <item>Parking</item>
+        <item>Fire Brigade Stations</item>
+        <item>Precision Engineers</item>
+        <item>Computer Shops</item>
+        <item>Conservatories</item>
+        <item>Computer Supplies</item>
+        <item>Employment Agencies</item>
+        <item>First, Primary and Infant Schools</item>
+        <item>Fan Clubs and Associations</item>
+        <item>Artists, Illustrators and Calligraphers</item>
+        <item>Physical Therapy</item>
+        <item>Computer Systems Services</item>
+        <item>Musical Instruments</item>
+        <item>Doctors Surgeries</item>
+        <item>Sculptors, Wood Workers and Stone Masons</item>
+        <item>Bakeries</item>
+        <item>Arable Farming</item>
+        <item>Self Catering</item>
+        <item>Careers Offices and Armed Forces Recruitment</item>
+        <item>Day and Care Centres</item>
+        <item>Removals and Shipping Agents</item>
+        <item>Telephones and Telephone Cards</item>
+        <item>Cash and Carry</item>
+        <item>Cinemas</item>
+        <item>Agricultural Contractors</item>
+        <item>Broad Age Range and Secondary State Schools</item>
+        <item>Craft Supplies</item>
+        <item>Travelling Cranes and Gantries</item>
+        <item>Shelving, Storage, Safes and Vaults</item>
+        <item>Armed Services</item>
+        <item>Construction Service Consultants</item>
+        <item>Trigonometric Points</item>
+        <item>Contract Cleaning Services</item>
+        <item>Garden Machinery and Furniture</item>
+        <item>Party Goods and Novelties</item>
+        <item>Sports and Fitness Coaching</item>
+        <item>Dental Surgeries</item>
+        <item>Educational Equipment and Supplies</item>
+        <item>Education Authorities</item>
+        <item>Database Services</item>
+        <item>Milling, Refining and Food Additives</item>
+        <item>Charity Shops</item>
+        <item>Detective and Investigation Agencies</item>
+        <item>Community Networks and Projects</item>
+        <item>Squash Courts</item>
+        <item>Electrical Contractors</item>
+        <item>Information Centres</item>
+        <item>Electronic Media</item>
+        <item>Museums</item>
+        <item>Post Offices</item>
+        <item>Leather Goods, Luggage and Travel Accessories Including Handbags</item>
+        <item>Packaging</item>
+        <item>Vehicle Parts and Accessories</item>
+        <item>Outdoor Pursuit Organisers and Equipment</item>
+        <item>Public Toilets</item>
+        <item>Franchise and Holding Company Services</item>
+        <item>Books and Maps</item>
+        <item>Agricultural Machinery and Goods</item>
+        <item>Theatres and Concert Halls</item>
+        <item>Pumps and Compressors</item>
+        <item>Published Goods</item>
+        <item>Bird Reserves, Collections and Sanctuaries</item>
+        <item>Places Of Worship</item>
+        <item>Baby and Nursery Equipment and Children\'s Clothes</item>
+        <item>Cleaning Equipment and Supplies</item>
+        <item>Vehicle Breakdown and Recovery Services</item>
+        <item>Pension and Fund Management</item>
+        <item>Tools Including Machine Shops</item>
+        <item>Furniture</item>
+        <item>Dog Training</item>
+        <item>Distribution and Haulage</item>
+        <item>Instrumentation Engineers</item>
+        <item>Courier, Delivery and Messenger</item>
+        <item>Construction Completion Services</item>
+        <item>Snooker and Pool Halls</item>
+        <item>Delicatessens</item>
+        <item>Medals, Trophies, Ceremonial and Religious Goods</item>
+        <item>Surplus Goods</item>
+        <item>Aqueducts</item>
+        <item>Printing On Garments</item>
+        <item>Reservoirs</item>
+        <item>Amusement Parks and Arcades</item>
+        <item>Food and Beverage Industry Machinery</item>
+        <item>Industrial Repairs and Servicing</item>
+        <item>Gifts and Cards</item>
+        <item>Convenience Stores and Independent Supermarkets</item>
+        <item>Coastal Safety</item>
+        <item>Lock, Key and Security Services</item>
+        <item>Laseria, Observatories and Planetaria</item>
+        <item>Computer Consultants</item>
+        <item>Refrigeration and Freezing Appliances</item>
+        <item>Police Stations</item>
+        <item>Bus and Coach Stations, Depots and Companies</item>
+        <item>Testing and Analysis Services</item>
+        <item>Image Consultants</item>
+        <item>Arms and Ammunition</item>
+        <item>Sports Services</item>
+        <item>Electrical Features</item>
+        <item>Railway Stations, Junctions and Halts</item>
+        <item>Central Government</item>
+        <item>Markets</item>
+        <item>Scrap Metal Dealers and Breakers Yards</item>
+        <item>Special Schools and Colleges</item>
+        <item>Fishmongers</item>
+        <item>General Construction Supplies</item>
+        <item>Conference and Exhibition Centres</item>
+        <item>Plasterers</item>
+        <item>Pets, Supplies and Services</item>
+        <item>Hospices</item>
+        <item>Job Centres</item>
+        <item>Lighting</item>
+        <item>Radar and Telecommunications Equipment</item>
+        <item>Electrical Motors and Generators</item>
+        <item>Nightclubs</item>
+        <item>Theme and Adventure Parks</item>
+        <item>Recording Studios and Record Companies</item>
+        <item>Secondhand Vehicles</item>
+        <item>Baking and Confectionery</item>
+        <item>Mental Health Centres and Practitioners</item>
+        <item>Consular Services</item>
+        <item>Fireplaces and Mantelpieces</item>
+        <item>Utility Companies and Brokers</item>
+        <item>Container and Storage</item>
+        <item>Hostels and Refuges For The Homeless</item>
+        <item>Drinking Fountains and Water Points</item>
+        <item>Kennels and Catteries</item>
+        <item>Dental Technicians</item>
+        <item>Courts, Court Services and Tribunals</item>
+        <item>Research Services</item>
+        <item>Fruit, Flower and Vegetable Growers</item>
+        <item>Bathroom Fixtures, Fittings and Sanitary Equipment</item>
+        <item>Taxi Ranks</item>
+        <item>Concrete Products</item>
+        <item>Art and Antiques</item>
+        <item>Astrologers, Clairvoyants and Palmists</item>
+        <item>Electrical Components</item>
+        <item>Roofing and Chimney Services</item>
+        <item>Electronic and Internet Publishers</item>
+        <item>Vehicle Auctions</item>
+        <item>Property Letting</item>
+        <item>Accountants and Auditors</item>
+        <item>Headquarters, Administration and Central Offices</item>
+        <item>Climbing Facilities</item>
+        <item>Youth Organisations</item>
+        <item>Vehicle Repair, Testing and Servicing</item>
+        <item>Financial Advice Services</item>
+        <item>Mechanical Engineers</item>
+        <item>Social Clubs</item>
+        <item>Banks and Building Societies</item>
+        <item>Driving Test Centres</item>
+        <item>Chemists and Pharmacies</item>
+        <item>Tunnels</item>
+        <item>Waste Collection, Processing and Disposal Equipment</item>
+        <item>Electrical Goods and Components</item>
+        <item>Cheque Cashing</item>
+        <item>Restoration and Preservation Services</item>
+        <item>Spas</item>
+        <item>Garden Goods</item>
+        <item>Alternative, Natural and Complementary</item>
+        <item>Secondhand Goods</item>
+        <item>Design Services</item>
+        <item>Horticultural Attractions</item>
+        <item>Electrical Equipment Repair and Servicing</item>
+        <item>Stationery and Office Supplies</item>
+        <item>Religious Organisations</item>
+        <item>Debt Collecting Agencies</item>
+        <item>Pubs, Bars and Inns</item>
+        <item>Feng Shui Consultants, Furnishers and Shop Fitters</item>
+        <item>Horticultural Equipment</item>
+        <item>Carpets, Flooring, Rugs and Soft Furnishings</item>
+        <item>Security Consultants</item>
+        <item>Construction Plant</item>
+        <item>Modelling and Theatrical Agencies</item>
+        <item>Weirs, Sluices and Dams</item>
+        <item>Candles</item>
+        <item>Gardening, Landscaping and Tree Surgery Services</item>
+        <item>Telephone, Telex and Fax Services</item>
+        <item>Metals Manufacturers, Fabricators and Stockholders</item>
+        <item>Archaeological Sites</item>
+        <item>Gas Features</item>
+        <item>Swimming Pools</item>
+        <item>Aeronautical Features</item>
+        <item>Tennis Facilities</item>
+        <item>Paints, Varnishes and Lacquers</item>
+        <item>Hail and Ride Zones</item>
+        <item>Lifting and Handling Equipment</item>
+        <item>Further Education Establishments</item>
+        <item>Supermarket Chains</item>
+        <item>Vehicles</item>
+        <item>Copyright and Patent</item>
+        <item>Sports Clubs and Associations</item>
+    </string-array>
+</resources>

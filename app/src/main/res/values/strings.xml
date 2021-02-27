@@ -11,4 +11,6 @@
     <string name="start_location_services">Start Location Services</string>
     <string name="terminate_location_services">Terminate Location Services</string>
     <string name="add_task_button_toolbar">Add Task</string>
+    <string name="chooseTask">Please select a category for your task</string>
+    <string name="firestore_error">Error Retrieving Data from Firestore!</string>
 </resources>

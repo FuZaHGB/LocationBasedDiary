@@ -1,6 +1,7 @@
 package com.example.locationbaseddiary;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -38,6 +39,9 @@ import org.osgeo.proj4j.CoordinateReferenceSystem;
 import org.osgeo.proj4j.ProjCoordinate;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.client.HttpClient;
@@ -53,12 +57,14 @@ public class DiaryLocationServices extends Service {
     static int DEFAULT_LOCATION_UPDATE_INTERVAL = 30000;
     static int FASTEST_LOCATION_UPDATE_INTERVAL = 25000;
 
-    //private static String BASE_URL = "http://188.166.145.15:3000/edinburghpoi?street_name=eq.Hermiston+Gait";
     private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
 
 
     private double deviceLat = 0.0;
     private double deviceLong = 0.0;
+
+    private HashSet<String> taskClassnames;
+    private HashMap<String, ArrayList<String>> results;
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -73,8 +79,9 @@ public class DiaryLocationServices extends Service {
                 deviceLat = locationResult.getLastLocation().getLatitude();
                 deviceLong = locationResult.getLastLocation().getLongitude();
 
+
                 try {
-                    //jsonQueryPostgREST();
+                    jsonQueryPostgREST();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -93,7 +100,7 @@ public class DiaryLocationServices extends Service {
 
         json.put("xcoord", deviceLong);
         json.put("ycoord", deviceLat);
-        json.put("poiclassname", "Diy and Home Improvement");
+        //json.put("poiclassname", "Diy and Home Improvement");
 
         StringEntity se = new StringEntity(json.toString());
 
@@ -104,7 +111,46 @@ public class DiaryLocationServices extends Service {
                 Log.d(TAG, "JSON: " + response.toString());
 
                 try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject obj = response.getJSONObject(i);
+                            String name, classname, distance;
 
+                            name = obj.get("name").toString();
+                            classname = obj.get("classname").toString();
+                            distance = obj.get("dist").toString();
+
+                            if (!taskClassnames.contains(classname)) {
+                                // Not a relevant result
+                                continue;
+                            }
+
+                            if (results == null || !results.containsKey(classname)) {
+                                // First time encountering this key, therefore no comparison needed
+                                ArrayList<String> value = new ArrayList<>();
+                                value.add(name);
+                                value.add(distance);
+                                results.put(classname, value);
+                                Log.d(TAG, "onSuccess: RESULTS = " + results.get(classname));
+                            }
+                            else { // Seen this key; need to see which is closer
+                                ArrayList<String> currentValue = results.get(classname);
+                                float oldDistance = Float.parseFloat(currentValue.get(1));
+                                float curDistance = Float.parseFloat(distance);
+                                if (curDistance < oldDistance) {
+                                    ArrayList<String> value = new ArrayList<>();
+                                    value.add(name);
+                                    value.add(distance);
+                                    results.put(classname, value); // Replace old result with new, closer one
+                                }
+                            }
+                        }
+                        if (results != null){
+                            for (String keyname : results.keySet()) {
+                                String key = keyname;
+                                String value = results.get(keyname).toString();
+                                Log.d(TAG, "onSuccess: HASHMAP CONTENTS = Key: "+key+" VALUE: "+value);
+                            }
+                        }
 
                 } catch (Exception e) {
 
@@ -130,6 +176,7 @@ public class DiaryLocationServices extends Service {
     }
 
 
+    @SuppressLint("MissingPermission")
     public void beginLocationUpdates(){
         String channelId = "location_notification_channel";
         NotificationManager notificationManager =
@@ -190,6 +237,13 @@ public class DiaryLocationServices extends Service {
             if (action != null) {
                 if (action.equals("begin_DiaryLocationServices")) {
                     beginLocationUpdates();
+                    taskClassnames = (HashSet<String>) intent.getSerializableExtra("classnames");
+                    results = new HashMap<>();
+                    if (taskClassnames != null){
+                        for(String classname : taskClassnames){
+                            Log.d(TAG, "onStartCommand: classname = " + classname);
+                        }
+                    }
                 } else if (action.equals("terminate_DiaryLocationServices")) {
                     terminateLocationUpdates();
                 }

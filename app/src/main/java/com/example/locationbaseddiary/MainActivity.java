@@ -1,6 +1,7 @@
 package com.example.locationbaseddiary;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -53,8 +54,23 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.w3c.dom.Document;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -69,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser user;
     private FirebaseFirestore fStore;
     private FirestoreRecyclerAdapter<TaskItem, TaskViewHolder> taskAdapter;
+    private HashSet<String> taskClassnames;
+    private boolean UIReady;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        taskClassnames = new HashSet<>();
 
         Query query = fStore.collection("Tasks").document(user.getUid()).collection("myTasks").orderBy("Description", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<TaskItem> allTasks = new FirestoreRecyclerOptions.Builder<TaskItem>().
@@ -112,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         taskList = findViewById(R.id.taskList);
         taskList.setLayoutManager(new LinearLayoutManager(this));
         taskList.setAdapter(taskAdapter);
-
     }
 
     @Override
@@ -127,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(item.getItemId() == R.id.addTask_Btn){
             Toast.makeText(this, "Add button has been pressed", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, AddTask.class);
+            stopLocationServices(); // Required so that the DiaryLocationServices classname hashset can be refreshed, otherwise we may be missing entries.
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
@@ -135,8 +154,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        startupLocationRequirementsChecks();
         taskAdapter.startListening();
+        startupLocationRequirementsChecks();
     }
 
     private void startupLocationRequirementsChecks(){
@@ -144,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED){
-                startLocationServices(); // We're able to begin location tracking!
+                forceUpdateClassnames(); // We're able to begin location tracking!
             }
             else {
                 askLocationPermission();
@@ -160,6 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: Called. Application is probably running in Background...");
+        for(String classname : taskClassnames){
+            Log.d(TAG, "onBindViewHolder: classname = " + classname);
+        }
         taskAdapter.stopListening();
     }
 
@@ -203,10 +225,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == FINE_LOCATION_REQUEST_CODE || requestCode == COARSE_LOCATION_REQUEST_CODE){
-            if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == FINE_LOCATION_REQUEST_CODE || requestCode == COARSE_LOCATION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted
-                startLocationServices();
+                forceUpdateClassnames();
             } else {
                 requestLocationFeaturesDialog();
             }
@@ -214,12 +236,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void startLocationServices() {
+        Log.d(TAG, "startLocationServices: taskclassnames size = " + taskClassnames.size());
         if (!isDiaryLocationServiceRunning()){
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("begin_DiaryLocationServices");
+            intent.putExtra("classnames", taskClassnames);
             startService(intent);
             Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void forceUpdateClassnames() {
+        /*
+            Method is required due to firestore being asynchronous and therefore not always updating
+            classnames hashset before DiaryLocationServices intent is created.
+         */
+        Log.d(TAG, "forceUpdateClassnames: called");
+        fStore.collection("Tasks").document(user.getUid()).collection("myTasks").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                         @Override
+                                         public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                             if (value != null) {
+                                                 Log.d(TAG, "onEvent: value size = "+value.size());
+                                                 for (DocumentSnapshot doc : value.getDocuments()) {
+                                                     Log.d(TAG, "onEvent: " + doc.get("Task_Classname"));
+                                                     taskClassnames.add(doc.get("Task_Classname").toString());
+                                                 }
+                                                 startLocationServices();
+                                             }
+                                             else {
+                                                 TextView firestoreError = findViewById(R.id.firestoreError_TextView);
+                                                 firestoreError.setVisibility(View.VISIBLE);
+                                                 Toast.makeText(MainActivity.this, "Please restart the application!", Toast.LENGTH_SHORT).show();
+                                             }
+                                         }
+                                     }
+        );
     }
 
     public void stopLocationServices() {
