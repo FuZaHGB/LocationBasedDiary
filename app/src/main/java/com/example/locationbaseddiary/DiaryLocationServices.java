@@ -25,6 +25,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.common.collect.Multimap;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -56,15 +57,19 @@ public class DiaryLocationServices extends Service {
     static final int LOCATION_SERVICE_ID = 777;
     static int DEFAULT_LOCATION_UPDATE_INTERVAL = 30000;
     static int FASTEST_LOCATION_UPDATE_INTERVAL = 25000;
+    static int DEVICE_NOTIFICATION_INTERVAL = 300000; // 1 Notification every 5 minutes, ideally this will change dependant on mode of Transport.
+    private long lastNotificationTime;
 
     private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
 
+    private static final boolean DEBUG = true;
 
     private double deviceLat = 0.0;
     private double deviceLong = 0.0;
 
-    private HashSet<String> taskClassnames;
-    private HashMap<String, ArrayList<String>> results;
+    //private HashSet<String> taskClassnames;
+    private HashMap<String, ArrayList<String>> tasks; // Classname : list of task descriptions
+    private HashMap<String, ArrayList<String>> results; // Classname : details of closest relevant place
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -81,13 +86,91 @@ public class DiaryLocationServices extends Service {
 
 
                 try {
-                    jsonQueryPostgREST();
+                    if (!tasks.isEmpty()){
+                        // Not making calls to API if we don't have any tasks to complete.
+                        jsonQueryPostgREST();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
     };
+
+    private String buildNotificationText() {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<String> resultValue, taskData;
+        String name, description;
+        int dist;
+        for (String task : results.keySet()) {
+            resultValue = results.get(task);
+            taskData = tasks.get(task);
+            name = resultValue.get(0); // 1st index is placename
+            dist = (int) Math.ceil(Float.parseFloat(resultValue.get(1))); // 2nd index is distance
+            description = taskData.get(0);
+            sb.append(name + " : " + dist + "m" + " : " +description +"\n");
+        }
+        return sb.toString();
+    }
+
+    private void displayNotification() {
+        //Check to ensure enough time has elapsed between Notifications.
+        long currentTime = System.currentTimeMillis();
+        long difference = Math.abs(currentTime - lastNotificationTime);
+
+
+        if (!(difference >= DEVICE_NOTIFICATION_INTERVAL) && (!DEBUG)){
+            return;
+        }
+        // At least 5 minutes have elapsed. Create Notification.
+
+        lastNotificationTime = System.currentTimeMillis(); // Notification being displayed therefore update last notification time.
+        String channelId = "LBDtask_notification_channel";
+        String notificationText = buildNotificationText();
+        String shorthandTitle = notificationText.substring(0, notificationText.indexOf("\n")) + "...";
+
+        Intent resultIntent = new Intent(this, MapPlot.class);
+        resultIntent.putExtra("results", results);
+
+        double[] currentLocation = new double[]{deviceLat, deviceLong};
+        resultIntent.putExtra("currentLocation", currentLocation);
+
+        // The below PendingIntent needs to change to a new Activity that plots the places on a MAP.
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        NotificationCompat.Builder builder = (NotificationCompat.Builder) new NotificationCompat.Builder(getApplicationContext(), channelId)
+                .setSmallIcon(R.drawable.ic_task_notification)
+                .setContentTitle("Relevant location(s) nearby!")
+                .setContentText(shorthandTitle)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(notificationText))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            if (notificationManager != null
+                    && notificationManager.getNotificationChannel(channelId) == null) {
+                NotificationChannel notificationChannel = new NotificationChannel(
+                        channelId,
+                        "Location Service",
+                        NotificationManager.IMPORTANCE_LOW
+                );
+                notificationChannel.setDescription("This channel is used by the Location Based Diary service");
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+
+        notificationManager.notify(0, builder.build());
+    }
 
 
     private void jsonQueryPostgREST() throws JSONException, UnsupportedEncodingException {
@@ -113,13 +196,15 @@ public class DiaryLocationServices extends Service {
                 try {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject obj = response.getJSONObject(i);
-                            String name, classname, distance;
+                            String name, classname, distance, xcoord, ycoord;
 
                             name = obj.get("name").toString();
                             classname = obj.get("classname").toString();
                             distance = obj.get("dist").toString();
+                            xcoord = obj.get("xcoord").toString();
+                            ycoord = obj.get("ycoord").toString();
 
-                            if (!taskClassnames.contains(classname)) {
+                            if (!tasks.containsKey(classname)) {
                                 // Not a relevant result
                                 continue;
                             }
@@ -129,17 +214,21 @@ public class DiaryLocationServices extends Service {
                                 ArrayList<String> value = new ArrayList<>();
                                 value.add(name);
                                 value.add(distance);
+                                value.add(xcoord);
+                                value.add(ycoord);
                                 results.put(classname, value);
-                                Log.d(TAG, "onSuccess: RESULTS = " + results.get(classname));
+                                //Log.d(TAG, "onSuccess: RESULTS = " + results.get(classname));
                             }
-                            else { // Seen this key; need to see which is closer
+                            else { // Seen this key; need to see if new result is closer
                                 ArrayList<String> currentValue = results.get(classname);
-                                float oldDistance = Float.parseFloat(currentValue.get(1));
-                                float curDistance = Float.parseFloat(distance);
+                                double oldDistance = Double.parseDouble(currentValue.get(1));
+                                double curDistance = Double.parseDouble(distance);
                                 if (curDistance < oldDistance) {
                                     ArrayList<String> value = new ArrayList<>();
                                     value.add(name);
                                     value.add(distance);
+                                    value.add(xcoord);
+                                    value.add(ycoord);
                                     results.put(classname, value); // Replace old result with new, closer one
                                 }
                             }
@@ -151,7 +240,7 @@ public class DiaryLocationServices extends Service {
                                 Log.d(TAG, "onSuccess: HASHMAP CONTENTS = Key: "+key+" VALUE: "+value);
                             }
                         }
-
+                    displayNotification();
                 } catch (Exception e) {
 
                     Log.e(TAG, e.toString());
@@ -237,10 +326,11 @@ public class DiaryLocationServices extends Service {
             if (action != null) {
                 if (action.equals("begin_DiaryLocationServices")) {
                     beginLocationUpdates();
-                    taskClassnames = (HashSet<String>) intent.getSerializableExtra("classnames");
+                    lastNotificationTime = System.currentTimeMillis() - DEVICE_NOTIFICATION_INTERVAL; // So that we don't need to wait 5 mins before displaying first notification.
+                    tasks = (HashMap<String, ArrayList<String>>) intent.getSerializableExtra("tasks");
                     results = new HashMap<>();
-                    if (taskClassnames != null){
-                        for(String classname : taskClassnames){
+                    if (tasks != null){
+                        for(String classname : tasks.keySet()){
                             Log.d(TAG, "onStartCommand: classname = " + classname);
                         }
                     }

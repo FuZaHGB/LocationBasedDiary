@@ -13,4 +13,5 @@
     <string name="add_task_button_toolbar">Add Task</string>
     <string name="chooseTask">Please select a category for your task</string>
     <string name="firestore_error">Error Retrieving Data from Firestore!</string>
+    <string name="return_to_menu">Return to Menu</string>
 </resources>

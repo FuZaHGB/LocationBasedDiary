@@ -64,6 +64,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -85,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser user;
     private FirebaseFirestore fStore;
     private FirestoreRecyclerAdapter<TaskItem, TaskViewHolder> taskAdapter;
-    private HashSet<String> taskClassnames;
-    private boolean UIReady;
+    //private HashSet<String> taskClassnames;
+    private HashMap<String, ArrayList<String>> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
-        taskClassnames = new HashSet<>();
+        //taskClassnames = new HashSet<>();
+        tasks = new HashMap<>();
 
         Query query = fStore.collection("Tasks").document(user.getUid()).collection("myTasks").orderBy("Description", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<TaskItem> allTasks = new FirestoreRecyclerOptions.Builder<TaskItem>().
@@ -179,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: Called. Application is probably running in Background...");
-        for(String classname : taskClassnames){
+        for(String classname : tasks.keySet()){
             Log.d(TAG, "onBindViewHolder: classname = " + classname);
         }
         taskAdapter.stopListening();
@@ -236,11 +238,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void startLocationServices() {
-        Log.d(TAG, "startLocationServices: taskclassnames size = " + taskClassnames.size());
+        //Log.d(TAG, "startLocationServices: taskclassnames size = " + taskClassnames.size());
+        Log.d(TAG, "startLocationServices: taskclassnames size = " + tasks.size());
         if (!isDiaryLocationServiceRunning()){
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("begin_DiaryLocationServices");
-            intent.putExtra("classnames", taskClassnames);
+            intent.putExtra("tasks", tasks);
             startService(intent);
             Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
         }
@@ -259,7 +262,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                  Log.d(TAG, "onEvent: value size = "+value.size());
                                                  for (DocumentSnapshot doc : value.getDocuments()) {
                                                      Log.d(TAG, "onEvent: " + doc.get("Task_Classname"));
-                                                     taskClassnames.add(doc.get("Task_Classname").toString());
+                                                     //taskClassnames.add(doc.get("Task_Classname").toString());
+                                                     String classname = doc.get("Task_Classname").toString();
+                                                     String taskDesc = doc.get("Description").toString();
+                                                     ArrayList<String> temp;
+                                                     if (tasks.containsKey(classname)) { // Need to append to Value arraylist instead of direct insert
+                                                         temp = tasks.get(classname);
+                                                         temp.add(taskDesc); // Append description to task ArrayList.
+                                                     }
+                                                     else{ // First time seeing this key so can just insert straight into tasks
+                                                         temp = new ArrayList<String>();
+                                                         temp.add(taskDesc);
+                                                     }
+                                                     tasks.put(classname, temp);
                                                  }
                                                  startLocationServices();
                                              }
