@@ -316,6 +316,9 @@ public class DiaryLocationServices extends Service {
         Log.d(TAG, "terminateLocationUpdates: Attempting to stop location updates...");
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         stopForeground(true);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
         stopSelf();
     }
 

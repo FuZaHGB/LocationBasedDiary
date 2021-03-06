@@ -2,6 +2,7 @@ package com.example.locationbaseddiary;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,6 +30,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +38,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +58,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -86,16 +91,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser user;
     private FirebaseFirestore fStore;
     private FirestoreRecyclerAdapter<TaskItem, TaskViewHolder> taskAdapter;
-    //private HashSet<String> taskClassnames;
     private HashMap<String, ArrayList<String>> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        logout = (Button) findViewById(R.id.btn_Logout);
-        logout.setOnClickListener(this);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
-        //taskClassnames = new HashSet<>();
         tasks = new HashMap<>();
 
         Query query = fStore.collection("Tasks").document(user.getUid()).collection("myTasks").orderBy("Description", Query.Direction.DESCENDING);
@@ -119,6 +119,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, "onBindViewHolder: taskDesc = "+model.getDescription());
                 holder.taskClass.setText(model.getTask_Classname());
                 holder.taskDateTime.setText(model.getDateTime_Task_Creation());
+
+                ImageView deleteIcon = holder.view.findViewById(R.id.deleteIcon);
+                deleteIcon.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
+                    @Override
+                    public void onClick(View v) {
+                        final String taskID = taskAdapter.getSnapshots().getSnapshot(holder.getAdapterPosition()).getId(); //.getAdapterPosition keeps track of current position (i.e. after a task is deleted), not just position at creation.
+                        PopupMenu menu = new PopupMenu(v.getContext(),v);
+                        menu.setGravity(Gravity.END);
+                        menu.getMenu().add("Delete").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                DocumentReference docRef = fStore.collection("Tasks").document(user.getUid()).collection("myTasks").document(taskID);
+                                docRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(MainActivity.this, "Task deleted successfully!", Toast.LENGTH_SHORT).show();
+
+                                        // Restart location services to update classname hashmap
+                                        stopLocationServices();
+                                        forceUpdateClassnames();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(MainActivity.this, "There was an error deleting the task!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                return false;
+                            }
+                        });
+                        menu.show();
+                    }
+                });
             }
 
             @NonNull
@@ -139,17 +173,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_add, menu);
+        inflater.inflate(R.menu.menu_logout, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.addTask_Btn){
-            Toast.makeText(this, "Add button has been pressed", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, AddTask.class);
-            stopLocationServices(); // Required so that the DiaryLocationServices classname hashset can be refreshed, otherwise we may be missing entries.
-            startActivity(intent);
+        switch (item.getItemId()) {
+            case R.id.addTask_Btn:
+                //Toast.makeText(this, "Add button has been pressed", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, AddTask.class);
+                stopLocationServices(); // Required so that the DiaryLocationServices classname hashset can be refreshed, otherwise we may be missing entries.
+                startActivity(intent);
+                break;
+
+            case R.id.logout_btn:
+                //Toast.makeText(this, "Logout button pressed", Toast.LENGTH_SHORT).show();
+                logoutUser();
+                break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -245,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             intent.setAction("begin_DiaryLocationServices");
             intent.putExtra("tasks", tasks);
             startService(intent);
-            Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -293,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("terminate_DiaryLocationServices");
             startService(intent);
-            Toast.makeText(this, "Diary Location Services Stopped", Toast.LENGTH_SHORT).show();
+            //.makeText(this, "Diary Location Services Stopped", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -336,11 +379,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
+        /*switch (v.getId()) {
             case R.id.btn_Logout:
                 logoutUser();
                 break;
-        }
+        }*/
+        return; // Now redundant with logout button in Menu.
     }
 
     private void logoutUser() {

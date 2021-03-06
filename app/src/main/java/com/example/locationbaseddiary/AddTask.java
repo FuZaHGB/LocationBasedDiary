@@ -1,10 +1,12 @@
 package com.example.locationbaseddiary;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +28,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,9 +68,12 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
         addTask.setOnClickListener(this);
 
         calendar = Calendar.getInstance();
-        currentDateTime = calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.MONTH)
-                + "/" + calendar.get(Calendar.YEAR) + " : " + calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                calendar.get(Calendar.MINUTE);
+        SimpleDateFormat time = new SimpleDateFormat("dd/MM/yyyy hh:mm aa");
+
+        currentDateTime = time.format(calendar.getTime());
+        //currentDateTime = calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.MONTH)
+        //        + "/" + calendar.get(Calendar.YEAR) + " : " + calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+        //        calendar.get(Calendar.MINUTE);
 
         Log.d(TAG, "onCreate: "+currentDateTime);
 
@@ -76,6 +83,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
         editText.setAdapter(adapter);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -95,17 +103,18 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.menu_delete){
-            Toast.makeText(this, "Delete button has been pressed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Task deleted.", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(new Intent(AddTask.this, MainActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void addTask(){
         String taskDescription = taskDesc.getText().toString();
-        //String taskClassname = taskClass.getText().toString();
         String taskClassname = editText.getText().toString();
+
 
         if (taskDescription.isEmpty() || taskDescription.length() < 5) {
             taskDesc.setError("Please enter a valid Task Description, with a minimum of 5 characters");
@@ -113,8 +122,8 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener {
             return;
         }
 
-        if (taskClassname.isEmpty()) {
-            editText.setError("Enter a classname for the task");
+        if (taskClassname.isEmpty() || !Arrays.stream(classnames).anyMatch(taskClassname::equals)) {
+            editText.setError("Select a valid classname for the task");
             editText.requestFocus();
             return;
         }

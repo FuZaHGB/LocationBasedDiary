@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.locationbaseddiary"
+        vectorDrawables.useSupportLibrary = true
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1

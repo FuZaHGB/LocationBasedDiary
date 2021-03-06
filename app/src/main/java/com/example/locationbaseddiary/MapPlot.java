@@ -60,7 +60,7 @@ public class MapPlot extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.menu_back){
-            Toast.makeText(this, "Back button has been pressed", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Back button has been pressed", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(new Intent(MapPlot.this, MainActivity.class));
         }
