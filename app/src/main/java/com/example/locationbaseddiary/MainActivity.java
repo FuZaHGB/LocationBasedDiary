@@ -7,27 +7,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -37,7 +27,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -45,17 +34,8 @@ import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -66,25 +46,18 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Document;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-    static int FINE_LOCATION_REQUEST_CODE = 988;
-    static int COARSE_LOCATION_REQUEST_CODE = 989;
+    private static final int PERMISSIONS_REQUEST_CODE = 987;
 
-    private Button logout;
+
     private Toolbar toolbar;
     private RecyclerView taskList;
     private FirebaseAuth mAuth;
@@ -205,14 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startupLocationRequirementsChecks(){
         if (verifyDeviceLocationEnabled(MainActivity.this)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED){
-                forceUpdateClassnames(); // We're able to begin location tracking!
-            }
-            else {
-                askLocationPermission();
-            }
+            permissionsCheck();
         }
         else {
             requestLocationFeaturesDialog();
@@ -249,34 +215,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void askLocationPermission() {
-        // If permission check fails this method is called to request access to required location permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d(TAG, "askFineLocationPermission: show alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST_CODE);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                Log.d(TAG, "askFineLocationPermission: show alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, COARSE_LOCATION_REQUEST_CODE);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == FINE_LOCATION_REQUEST_CODE || requestCode == COARSE_LOCATION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission has been granted
-                forceUpdateClassnames();
-            } else {
-                requestLocationFeaturesDialog();
-            }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // 3rd Party library to make life easier when dealing with Android Permissions.
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @AfterPermissionGranted(PERMISSIONS_REQUEST_CODE)
+    public void permissionsCheck() {
+        Toast.makeText(this, "Permissions Check called", Toast.LENGTH_SHORT).show();
+        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.FOREGROUND_SERVICE, Manifest.permission.ACTIVITY_RECOGNITION};
+        if (EasyPermissions.hasPermissions(this, perms)){
+            Toast.makeText(this, "Permissions have been granted!", Toast.LENGTH_SHORT).show();
+            forceUpdateClassnames();
+        }
+        else{
+            EasyPermissions.requestPermissions(this, "The following permissions are required for the application to function.",
+                    PERMISSIONS_REQUEST_CODE, perms);
         }
     }
 
@@ -293,9 +250,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void forceUpdateClassnames() {
-        /*
-            Method is required due to firestore being asynchronous and therefore not always updating
-            classnames hashset before DiaryLocationServices intent is created.
+        /**
+          *  Method is required due to firestore being asynchronous and therefore not always updating
+          *  classnames hashset before DiaryLocationServices intent is created.
          */
         Log.d(TAG, "forceUpdateClassnames: called");
         fStore.collection("Tasks").document(user.getUid()).collection("myTasks").addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -336,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("terminate_DiaryLocationServices");
             startService(intent);
-            //.makeText(this, "Diary Location Services Stopped", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -379,11 +335,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        /*switch (v.getId()) {
-            case R.id.btn_Logout:
-                logoutUser();
-                break;
-        }*/
         return; // Now redundant with logout button in Menu.
     }
 

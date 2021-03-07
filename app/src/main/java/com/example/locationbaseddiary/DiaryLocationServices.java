@@ -1,14 +1,13 @@
 package com.example.locationbaseddiary;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -18,38 +17,26 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.common.collect.Multimap;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osgeo.proj4j.BasicCoordinateTransform;
-import org.osgeo.proj4j.CRSFactory;
-import org.osgeo.proj4j.CoordinateReferenceSystem;
-import org.osgeo.proj4j.ProjCoordinate;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.entity.StringEntity;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.params.BasicHttpParams;
 
 public class DiaryLocationServices extends Service {
 
@@ -57,7 +44,7 @@ public class DiaryLocationServices extends Service {
     static final int LOCATION_SERVICE_ID = 777;
     static int DEFAULT_LOCATION_UPDATE_INTERVAL = 30000;
     static int FASTEST_LOCATION_UPDATE_INTERVAL = 25000;
-    static int DEVICE_NOTIFICATION_INTERVAL = 300000; // 1 Notification every 5 minutes, ideally this will change dependant on mode of Transport.
+    static int DEVICE_NOTIFICATION_INTERVAL = 180000; // Initially 1 notification every 3 minutes. Changes dependant on method of transportation.
     private long lastNotificationTime;
 
     private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
@@ -67,9 +54,11 @@ public class DiaryLocationServices extends Service {
     private double deviceLat = 0.0;
     private double deviceLong = 0.0;
 
-    //private HashSet<String> taskClassnames;
     private HashMap<String, ArrayList<String>> tasks; // Classname : list of task descriptions
     private HashMap<String, ArrayList<String>> results; // Classname : details of closest relevant place
+
+    BroadcastReceiver receiver; // For receiving Activity Recognition updates.
+    String activityType;
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -98,6 +87,7 @@ public class DiaryLocationServices extends Service {
     };
 
     private String buildNotificationText() {
+        // Build a line of text for each key in results HashMap.
         StringBuilder sb = new StringBuilder();
         ArrayList<String> resultValue, taskData;
         String name, description;
@@ -122,6 +112,7 @@ public class DiaryLocationServices extends Service {
         if (!(difference >= DEVICE_NOTIFICATION_INTERVAL) && (!DEBUG)){
             return;
         }
+
         // At least 5 minutes have elapsed. Create Notification.
 
         lastNotificationTime = System.currentTimeMillis(); // Notification being displayed therefore update last notification time.
@@ -328,6 +319,8 @@ public class DiaryLocationServices extends Service {
             String action = intent.getAction();
             if (action != null) {
                 if (action.equals("begin_DiaryLocationServices")) {
+
+                    // The below section is for the Location Updating Functionality
                     beginLocationUpdates();
                     lastNotificationTime = System.currentTimeMillis() - DEVICE_NOTIFICATION_INTERVAL; // So that we don't need to wait 5 mins before displaying first notification.
                     tasks = (HashMap<String, ArrayList<String>>) intent.getSerializableExtra("tasks");
@@ -337,12 +330,87 @@ public class DiaryLocationServices extends Service {
                             Log.d(TAG, "onStartCommand: classname = " + classname);
                         }
                     }
+
+                    // This section is for the Activity Recognition Functionality.
+                    receiver = new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                           if (intent.getAction().equals(ActivityRecognitionConstants.DETECTED_ACTIVITY)) {
+                               int type = intent.getIntExtra("type", -1);
+                               int confidence = intent.getIntExtra("confidence", 0);
+                               handleUserActivity(type, confidence);
+                           }
+                        }
+                    };
+                    startActivityRecognitionService();
                 } else if (action.equals("terminate_DiaryLocationServices")) {
                     terminateLocationUpdates();
+                    stopActivityRecognitionService();
                 }
             }
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void startActivityRecognitionService() {
+        // Start Service which provides Activity Recognition functionality.
+        Intent intent = new Intent(DiaryLocationServices.this, ActivitiesBackgroundService.class);
+        startService(intent);
+    }
+
+    private void stopActivityRecognitionService() {
+        Intent intent = new Intent(DiaryLocationServices.this, ActivitiesBackgroundService.class);
+        stopService(intent);
+    }
+
+    public void handleUserActivity(int type, int confidence){
+        // Only changing the activity if we're confident enough in the new activity being proposed.
+        if (confidence > ActivityRecognitionConstants.MIN_CONFIDENCE_LEVEL) {
+            Toast.makeText(this, "Activity Detected! Type = " + type + " : Current Notification Interval = " + DEVICE_NOTIFICATION_INTERVAL, Toast.LENGTH_SHORT).show();
+
+            switch (type) {
+                case DetectedActivity.IN_VEHICLE: {
+                    activityType = getString(R.string.activity_in_vehicle);
+                    DEVICE_NOTIFICATION_INTERVAL = 240000; // New notification every 4 minutes.
+                    break;
+                }
+                case DetectedActivity.ON_BICYCLE: {
+                    activityType = getString(R.string.activity_on_bicycle);
+                    DEVICE_NOTIFICATION_INTERVAL = 180000; // New notification every 3 minutes.
+                    break;
+                }
+                case DetectedActivity.ON_FOOT: {
+                    activityType = getString(R.string.activity_on_foot);
+                    DEVICE_NOTIFICATION_INTERVAL = 120000; // New notification every 2 minutes.
+                    break;
+                }
+                case DetectedActivity.RUNNING: {
+                    activityType = getString(R.string.activity_running);
+                    DEVICE_NOTIFICATION_INTERVAL = 240000; // New notification every 4 minutes.
+                    break;
+                }
+                case DetectedActivity.STILL: {
+                    activityType = getString(R.string.activity_still);
+                    DEVICE_NOTIFICATION_INTERVAL = 300000; // New notification every 5 minutes.
+                    break;
+                }
+                case DetectedActivity.TILTING: {
+                    activityType = getString(R.string.activity_tilting);
+                    DEVICE_NOTIFICATION_INTERVAL = 240000; // New notification every 4 minutes.
+                    break;
+                }
+                case DetectedActivity.WALKING: {
+                    activityType = getString(R.string.activity_walking);
+                    DEVICE_NOTIFICATION_INTERVAL = 120000; // New notification every 2 minutes.
+                    break;
+                }
+                case DetectedActivity.UNKNOWN: {
+                    activityType = getString(R.string.activity_unknown);
+                    DEVICE_NOTIFICATION_INTERVAL = 180000; // New notification every 3 minutes.
+                    break;
+                }
+            }
+        }
     }
 
     @Nullable
@@ -350,4 +418,5 @@ public class DiaryLocationServices extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 }

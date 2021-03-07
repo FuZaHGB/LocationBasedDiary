@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_REC‌​OGNITION"/>
 
     <application
         android:allowBackup="true"
@@ -37,6 +40,17 @@
             android:name=".DiaryLocationServices"
             android:enabled="true"
             android:exported="false" />
+
+        <service
+            android:name=".ActivitiesIntentService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".ActivitiesBackgroundService"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>

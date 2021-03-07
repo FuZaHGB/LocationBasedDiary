@@ -78,7 +78,7 @@ public class MapPlot extends AppCompatActivity implements OnMapReadyCallback {
             ycoord = Double.parseDouble(results.get(task).get(3));
             name = results.get(task).get(0);
             taskLocation = new LatLng(ycoord, xcoord);
-            map.addMarker(new MarkerOptions().position(taskLocation).title(name));
+            map.addMarker(new MarkerOptions().position(taskLocation).title(name + " : " + task));
         }
 
         // Displaying user's current location

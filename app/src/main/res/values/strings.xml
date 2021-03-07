@@ -14,4 +14,12 @@
     <string name="chooseTask">Please select a category for your task</string>
     <string name="firestore_error">Error Retrieving Data from Firestore!</string>
     <string name="return_to_menu">Return to Menu</string>
+    <string name="activity_in_vehicle">IN VEHICLE</string>
+    <string name="activity_on_bicycle">ON BICYCLE</string>
+    <string name="activity_on_foot">ON FOOT</string>
+    <string name="activity_running">RUNNING</string>
+    <string name="activity_walking">WALKING</string>
+    <string name="activity_unknown">UNKNOWN</string>
+    <string name="activity_still">STILL</string>
+    <string name="activity_tilting">TILTING</string>
 </resources>
