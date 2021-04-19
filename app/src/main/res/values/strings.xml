@@ -22,4 +22,5 @@
     <string name="activity_unknown">UNKNOWN</string>
     <string name="activity_still">STILL</string>
     <string name="activity_tilting">TILTING</string>
+    <string name="switch_url_button_toolbar">Switch PostgREST Function</string>
 </resources>

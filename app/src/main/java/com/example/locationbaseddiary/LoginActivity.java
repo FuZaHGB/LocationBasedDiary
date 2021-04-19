@@ -61,6 +61,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
+    public void onBackPressed() {
+        // Do nothing. Prevents user from logging out, then pressing the back button to return to Main Activity.
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.register_textView:

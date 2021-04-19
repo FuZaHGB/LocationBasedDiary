@@ -3,6 +3,7 @@ package com.example.locationbaseddiary;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -42,6 +43,7 @@ public class ActivitiesIntentService extends IntentService {
 
         for (DetectedActivity activity : detectedActivityArrayList) {
             Log.d(TAG, "Detected Activity: " + activity.getType() + " : " + activity.getConfidence());
+            //Toast.makeText(this, "Detected Activity: " + activity.getType() + " : " + activity.getConfidence(), Toast.LENGTH_SHORT).show();
             broadcastActivity(activity);
         }
     }

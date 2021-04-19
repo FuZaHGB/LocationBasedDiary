@@ -47,9 +47,10 @@ public class DiaryLocationServices extends Service {
     static int DEVICE_NOTIFICATION_INTERVAL = 180000; // Initially 1 notification every 3 minutes. Changes dependant on method of transportation.
     private long lastNotificationTime;
 
-    private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
+    //private static String BASE_URL = "http://188.166.145.15:3000/rpc/getclosest";
+    private String BASE_URL;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = true; // Setting to false will enable notification intervals depending on detected Method of Transportation.
 
     private double deviceLat = 0.0;
     private double deviceLong = 0.0;
@@ -174,26 +175,33 @@ public class DiaryLocationServices extends Service {
 
         json.put("xcoord", deviceLong);
         json.put("ycoord", deviceLat);
-        //json.put("poiclassname", "Diy and Home Improvement");
 
         StringEntity se = new StringEntity(json.toString());
+
+        Log.d(TAG, "jsonQueryPostgREST: Using this url: " + BASE_URL);
 
         client.post(this, BASE_URL, se, "application/json;charset=utf-8", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers,
                                   JSONArray response) {
-                Log.d(TAG, "JSON: " + response.toString());
+                Log.d(TAG, "JSON Size: " +response.length()+" : " + response.toString());
+
+                if (response.length() == 0){
+                    return; // No nearby points of interest found.
+                }
+
+                results.clear(); // Clear Hashmap as user may have moved so older points aren't necessary.
 
                 try {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject obj = response.getJSONObject(i);
                             String name, classname, distance, xcoord, ycoord;
 
-                            name = obj.get("name").toString();
-                            classname = obj.get("classname").toString();
-                            distance = obj.get("dist").toString();
-                            xcoord = obj.get("xcoord").toString();
-                            ycoord = obj.get("ycoord").toString();
+                            name = obj.get("fetchedname").toString();
+                            classname = obj.get("fetchedclassname").toString();
+                            distance = obj.get("fetcheddist").toString();
+                            xcoord = obj.get("fetchedxcoord").toString();
+                            ycoord = obj.get("fetchedycoord").toString();
 
                             if (!tasks.containsKey(classname)) {
                                 // Not a relevant result
@@ -331,6 +339,9 @@ public class DiaryLocationServices extends Service {
                         }
                     }
 
+                    // This will depend on what option is selected in Main Activity.
+                    BASE_URL = (String) intent.getSerializableExtra("url");
+
                     // This section is for the Activity Recognition Functionality.
                     receiver = new BroadcastReceiver() {
                         @Override
@@ -342,6 +353,7 @@ public class DiaryLocationServices extends Service {
                            }
                         }
                     };
+
                     startActivityRecognitionService();
                 } else if (action.equals("terminate_DiaryLocationServices")) {
                     terminateLocationUpdates();

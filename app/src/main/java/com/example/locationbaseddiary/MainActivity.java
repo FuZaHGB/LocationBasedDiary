@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 987;
 
+    private Boolean advancedFunc = false;
+    private String url;
+
 
     private Toolbar toolbar;
     private RecyclerView taskList;
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        url = "http://188.166.145.15:3000/rpc/intersectclosest";
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -112,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                         // Restart location services to update classname hashmap
                                         stopLocationServices();
-                                        forceUpdateClassnames();
+                                        forceUpdateClassnames(url);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -147,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_add, menu);
         inflater.inflate(R.menu.menu_logout, menu);
+        inflater.inflate(R.menu.menu_switchurl, menu);
         return true;
     }
 
@@ -164,6 +170,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //Toast.makeText(this, "Logout button pressed", Toast.LENGTH_SHORT).show();
                 logoutUser();
                 break;
+
+            case R.id.switchTask_Btn:
+                stopLocationServices();
+
+                if (advancedFunc) {
+                    url = "http://188.166.145.15:3000/rpc/intersectclosest";
+                    Toast.makeText(this, "Intersect Func", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    url = "http://188.166.145.15:3000/rpc/getclosest";
+                    Toast.makeText(this, "Basic Func", Toast.LENGTH_SHORT).show();
+                }
+
+                advancedFunc = !advancedFunc;
+
+                forceUpdateClassnames(url);
         }
 
         return super.onOptionsItemSelected(item);
@@ -225,11 +247,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @AfterPermissionGranted(PERMISSIONS_REQUEST_CODE)
     public void permissionsCheck() {
-        Toast.makeText(this, "Permissions Check called", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Permissions Check called", Toast.LENGTH_SHORT).show();
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.FOREGROUND_SERVICE, Manifest.permission.ACTIVITY_RECOGNITION};
         if (EasyPermissions.hasPermissions(this, perms)){
-            Toast.makeText(this, "Permissions have been granted!", Toast.LENGTH_SHORT).show();
-            forceUpdateClassnames();
+            //Toast.makeText(this, "Permissions have been granted!", Toast.LENGTH_SHORT).show();
+            forceUpdateClassnames(url);
         }
         else{
             EasyPermissions.requestPermissions(this, "The following permissions are required for the application to function.",
@@ -237,19 +259,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void startLocationServices() {
+    public void startLocationServices(String url) {
         //Log.d(TAG, "startLocationServices: taskclassnames size = " + taskClassnames.size());
         Log.d(TAG, "startLocationServices: taskclassnames size = " + tasks.size());
         if (!isDiaryLocationServiceRunning()){
             Intent intent = new Intent(getApplicationContext(), DiaryLocationServices.class);
             intent.setAction("begin_DiaryLocationServices");
             intent.putExtra("tasks", tasks);
+            intent.putExtra("url", url);
             startService(intent);
             //Toast.makeText(this, "Diary Location Services Started", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void forceUpdateClassnames() {
+    public void forceUpdateClassnames(String url) {
         /**
           *  Method is required due to firestore being asynchronous and therefore not always updating
           *  classnames hashset before DiaryLocationServices intent is created.
@@ -276,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                      }
                                                      tasks.put(classname, temp);
                                                  }
-                                                 startLocationServices();
+                                                 startLocationServices(url); // By default, use the intersect function.
                                              }
                                              else {
                                                  TextView firestoreError = findViewById(R.id.firestoreError_TextView);

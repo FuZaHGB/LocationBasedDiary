@@ -102,21 +102,4 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     }
                 });
     }
-
-    /*private void updateFirebaseUser() {
-        FirebaseDatabase.getInstance().getReference("Users")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .setValue(editTextEmail.getText()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                if (task.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
-                }
-                else {
-                    Toast.makeText(RegisterActivity.this, "An error has occurred during registration. Please try again.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    } */
 }
